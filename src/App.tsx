@@ -3,7 +3,7 @@ import {
   Users, Newspaper, Video, GraduationCap, Plus, Trash2,
   ShieldCheck, LayoutDashboard, FileText, Settings, LogOut,
   FolderLock, UserCheck, Menu, X, ArrowLeftRight, CheckCircle2, ShieldAlert,
-  Activity, ChevronRight, BarChart3, Cloud
+  Activity, ChevronRight, BarChart3, Cloud, ExternalLink
 } from 'lucide-react';
 import { Colaborador, Noticia, InspecaoForm, ConformidadeForm, PilulaTreinamento, QuizRespostum, AppConfig } from './types';
 import Login from './components/Login';
@@ -59,7 +59,7 @@ export default function App() {
           linkOriginal: 'https://pneubras.com/sipat',
           dataCriacao: '28/05/2026'
         }
-      ]);
+      ] as any);
       
       setInspecoes([]);
       setConformidades([]);
@@ -70,8 +70,8 @@ export default function App() {
           id: 'p1',
           titulo: 'DDS - Levantamento Manual de Peso',
           descricao: 'Aprenda a postura correta para levantar pneus e peças pesadas sem prejudicar a sua coluna e evitando afastamentos médicos.',
-          videoUrl: 'https://www.youtube.com/embed/tgbNymZ7vqY', // Link de vídeo de exemplo
-          dataFim: '2026-12-31', // Data no futuro para mostrar o status "Pendente/Aberto"
+          videoUrl: 'https://www.youtube.com/embed/tgbNymZ7vqY', 
+          dataFim: '2026-12-31', 
           quiz: {
             pergunta: 'Qual a postura correta ao levantar um peso do chão?',
             opcoes: [
@@ -87,21 +87,21 @@ export default function App() {
           titulo: 'Treinamento NR-35 - Trabalho em Altura (Vencido)',
           descricao: 'Revisão das normas para trabalho em altura durante a manutenção dos estoques verticais.',
           videoUrl: 'https://www.youtube.com/embed/tgbNymZ7vqY',
-          dataFim: '2026-05-15', // Data no passado para você ver funcionando a TRAVA DE SEGURANÇA VERMELHA
+          dataFim: '2026-05-15', 
           quiz: {
             pergunta: 'A partir de qual altura é obrigatório o uso de cinto de segurança corporais?',
             opcoes: ['1,0 metro', '2,0 metros', '3,5 metros'],
             respostaCorreta: 1
           }
-        } as any
-      ]);
+        }
+      ] as any);
       
       setRespostasQuiz([]);
       setConfig({
-        pbiDashboardUrl: '',
-        lookerStudioUrl: '',
-        gdriveFormsFolderUrl: '',
-        gdrivePhotosFolderUrl: ''
+        pbiDashboardUrl: 'https://app.powerbi.com/view?r=eyJrIjoiMTcxODgwOWEtNDg5NC00YjdhLWJmYjAtOTI3OGQ1Y2Y5OGMzIiwidCI6IjExZGJiZmUyLTg5YjgtNDU0OS1iZTEwLWNlYzM2NGU1OTU1MSIsImMiOjR9',
+        lookerStudioUrl: 'https://datastudio.google.com/u/0/reporting/4d9b1459-d544-4986-986d-535db98b26b4/page/tEnnC',
+        gdriveFormsFolderUrl: 'https://drive.google.com/drive/u/4/folders/1Qm6eczxgCD5FWCJHnUSY-oawtbwf5ipf',
+        gdrivePhotosFolderUrl: 'https://drive.google.com/drive/u/4/folders/1_v2jVzO50VJfHd87npJE-Ibn2mb6ThyiRpfuaun1_kK1WEsgpMko5j-ZS4L-5qD0XhC-w1xU'
       });
       setLoading(false);
     }, 800); 
@@ -122,7 +122,7 @@ export default function App() {
     setActiveAdminTab('painel');
   };
 
-  // API wrappers (Mantidos como estavam)
+  // API wrappers
   const handleAddColaborador = async (col: Omit<Colaborador, 'id'>) => {
     try {
       const res = await fetch('/api/colaboradores', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(col) });
@@ -174,11 +174,13 @@ export default function App() {
       if (res.ok) await syncDatabase();
     } catch (e) {}
   };
+  
   const handleUpdateConfig = async (newConf: Partial<AppConfig>) => {
-    try {
-      const res = await fetch('/api/config', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(newConf) });
-      if (res.ok) await syncDatabase();
-    } catch (e) {}
+    // Atualiza os campos instantaneamente na tela (modo simulação)
+    setConfig(configAnterior => ({
+      ...configAnterior,
+      ...newConf
+    }));
   };
 
   if (loading) {
@@ -420,6 +422,7 @@ export default function App() {
 
                 {activeAdminTab === 'dados' && (
                   <div className="space-y-8">
+                    
                     <div className="bg-white rounded-2xl border border-slate-200/60 p-7 shadow-sm ring-1 ring-slate-900/5">
                       <div className="flex items-center justify-between mb-6">
                         <div>
@@ -436,25 +439,47 @@ export default function App() {
                           <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center">
                             <BarChart3 className="w-3.5 h-3.5 mr-1.5" /> Dashboards
                           </h4>
+                          
                           <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1.5">Power BI (Link Iframe)</label>
-                            <input
-                              type="text"
-                              value={config.pbiDashboardUrl}
-                              onChange={(e) => handleUpdateConfig({ pbiDashboardUrl: e.target.value })}
-                              placeholder="https://app.powerbi.com/view?..."
-                              className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-lg outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all bg-white"
-                            />
+                            <div className="flex space-x-2">
+                              <input
+                                type="text"
+                                value={config.pbiDashboardUrl}
+                                onChange={(e) => handleUpdateConfig({ pbiDashboardUrl: e.target.value })}
+                                className="flex-1 px-4 py-2.5 text-sm border border-slate-200 rounded-lg outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all bg-white"
+                              />
+                              <a 
+                                href={config.pbiDashboardUrl || '#'} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg flex items-center justify-center transition-colors shadow-sm"
+                                title="Acessar Dashboard Origem"
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                              </a>
+                            </div>
                           </div>
+                          
                           <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1.5">Looker Studio (Link Iframe)</label>
-                            <input
-                              type="text"
-                              value={config.lookerStudioUrl}
-                              onChange={(e) => handleUpdateConfig({ lookerStudioUrl: e.target.value })}
-                              placeholder="https://lookerstudio.google.com/embed/..."
-                              className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-lg outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all bg-white"
-                            />
+                            <div className="flex space-x-2">
+                              <input
+                                type="text"
+                                value={config.lookerStudioUrl}
+                                onChange={(e) => handleUpdateConfig({ lookerStudioUrl: e.target.value })}
+                                className="flex-1 px-4 py-2.5 text-sm border border-slate-200 rounded-lg outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all bg-white"
+                              />
+                              <a 
+                                href={config.lookerStudioUrl || '#'} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg flex items-center justify-center transition-colors shadow-sm"
+                                title="Acessar Dashboard Origem"
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                              </a>
+                            </div>
                           </div>
                         </div>
 
@@ -462,25 +487,47 @@ export default function App() {
                           <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center">
                             <Cloud className="w-3.5 h-3.5 mr-1.5" /> Nuvem & Repositórios
                           </h4>
+                          
                           <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1.5">Google Drive - Formulários</label>
-                            <input
-                              type="text"
-                              value={config.gdriveFormsFolderUrl}
-                              onChange={(e) => handleUpdateConfig({ gdriveFormsFolderUrl: e.target.value })}
-                              placeholder="https://drive.google.com/drive/..."
-                              className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-lg outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all bg-white"
-                            />
+                            <div className="flex space-x-2">
+                              <input
+                                type="text"
+                                value={config.gdriveFormsFolderUrl}
+                                onChange={(e) => handleUpdateConfig({ gdriveFormsFolderUrl: e.target.value })}
+                                className="flex-1 px-4 py-2.5 text-sm border border-slate-200 rounded-lg outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all bg-white"
+                              />
+                              <a 
+                                href={config.gdriveFormsFolderUrl || '#'} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg flex items-center justify-center transition-colors shadow-sm"
+                                title="Acessar Pasta no Drive"
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                              </a>
+                            </div>
                           </div>
+                          
                           <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1.5">Google Drive - Imagens (Inspeções)</label>
-                            <input
-                              type="text"
-                              value={config.gdrivePhotosFolderUrl}
-                              onChange={(e) => handleUpdateConfig({ gdrivePhotosFolderUrl: e.target.value })}
-                              placeholder="https://drive.google.com/drive/..."
-                              className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-lg outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all bg-white"
-                            />
+                            <div className="flex space-x-2">
+                              <input
+                                type="text"
+                                value={config.gdrivePhotosFolderUrl}
+                                onChange={(e) => handleUpdateConfig({ gdrivePhotosFolderUrl: e.target.value })}
+                                className="flex-1 px-4 py-2.5 text-sm border border-slate-200 rounded-lg outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all bg-white"
+                              />
+                              <a 
+                                href={config.gdrivePhotosFolderUrl || '#'} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg flex items-center justify-center transition-colors shadow-sm"
+                                title="Acessar Pasta no Drive"
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                              </a>
+                            </div>
                           </div>
                         </div>
                       </div>
