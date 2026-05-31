@@ -37,13 +37,65 @@ export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const syncDatabase = async () => {
-    // AJUSTE: Simulação rápida para a Vercel não ficar travada procurando a API
+    // Simulando o tempo de carregamento
     setTimeout(() => {
       setColaboradores([]);
-      setNoticias([]);
+      
+      // 1. INSERINDO NOTÍCIAS DE EXEMPLO
+      setNoticias([
+        {
+          id: 'n1',
+          titulo: 'Campanha de Prevenção: Uso obrigatório de EPIs',
+          descricao: 'Lembramos a todos os colaboradores que o uso de óculos de proteção e botinas é estritamente obrigatório em toda a área de recapagem e manutenção de veículos da rede.',
+          imageUrl: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=500&q=80',
+          linkOriginal: 'https://pneubras.com/sst',
+          dataCriacao: '30/05/2026'
+        },
+        {
+          id: 'n2',
+          titulo: 'Semana da SIPAT 2026 confirmada para Junho',
+          descricao: 'Preparem-se! A Semana Interna de Prevenção de Acidentes de Trabalho ocorrerá no próximo mês com palestras virtuais e sorteios de brindes para os participantes.',
+          imageUrl: 'https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=500&q=80',
+          linkOriginal: 'https://pneubras.com/sipat',
+          dataCriacao: '28/05/2026'
+        }
+      ]);
+      
       setInspecoes([]);
       setConformidades([]);
-      setPilulas([]);
+      
+      // 2. INSERINDO PÍLULAS DE TREINAMENTO (VÍDEOS) DE EXEMPLO
+      setPilulas([
+        {
+          id: 'p1',
+          titulo: 'DDS - Levantamento Manual de Peso',
+          descricao: 'Aprenda a postura correta para levantar pneus e peças pesadas sem prejudicar a sua coluna e evitando afastamentos médicos.',
+          videoUrl: 'https://www.youtube.com/embed/tgbNymZ7vqY', // Link de vídeo de exemplo
+          dataFim: '2026-12-31', // Data no futuro para mostrar o status "Pendente/Aberto"
+          quiz: {
+            pergunta: 'Qual a postura correta ao levantar um peso do chão?',
+            opcoes: [
+              'Dobrar a coluna e manter as pernas esticadas',
+              'Dobrar os joelhos, manter a coluna reta e usar a força das pernas',
+              'Puxar o peso rapidamente usando apenas a força dos braços'
+            ],
+            respostaCorreta: 1
+          }
+        },
+        {
+          id: 'p2',
+          titulo: 'Treinamento NR-35 - Trabalho em Altura (Vencido)',
+          descricao: 'Revisão das normas para trabalho em altura durante a manutenção dos estoques verticais.',
+          videoUrl: 'https://www.youtube.com/embed/tgbNymZ7vqY',
+          dataFim: '2026-05-15', // Data no passado para você ver funcionando a TRAVA DE SEGURANÇA VERMELHA
+          quiz: {
+            pergunta: 'A partir de qual altura é obrigatório o uso de cinto de segurança corporais?',
+            opcoes: ['1,0 metro', '2,0 metros', '3,5 metros'],
+            respostaCorreta: 1
+          }
+        } as any
+      ]);
+      
       setRespostasQuiz([]);
       setConfig({
         pbiDashboardUrl: '',
@@ -52,7 +104,7 @@ export default function App() {
         gdrivePhotosFolderUrl: ''
       });
       setLoading(false);
-    }, 500); 
+    }, 800); 
   };
 
   useEffect(() => {
