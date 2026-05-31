@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Shovel, LogIn, ShieldAlert, Mail, Lock, Fingerprint, Info, CheckCircle, ChevronRight } from 'lucide-react';
+import { ShieldCheck, Mail, Lock, AlertCircle, ArrowRight } from 'lucide-react';
 
 interface LoginProps {
   onLoginSuccess: (user: any) => void;
@@ -7,175 +7,110 @@ interface LoginProps {
 
 export default function Login({ onLoginSuccess }: LoginProps) {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isAdminMode, setIsAdminMode] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [senha, setSenha] = useState('');
+  const [erro, setErro] = useState('');
 
-  // Clear or reset fields on admin checkbox switch
-  const handleAdminCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setIsAdminMode(e.target.checked);
-    setErrorMsg(null);
-    setPassword('');
-  };
-
-  const handleFormSubmit = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim()) {
-      setErrorMsg("Por favor, preencha o seu e-mail corporativo.");
-      return;
-    }
-    if (isAdminMode && !password.trim()) {
-      setErrorMsg("O acesso Administrativo requer a confirmação da senha.");
-      return;
-    }
+    setErro('');
 
-    setLoading(true);
-    setErrorMsg(null);
-
-    try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: email.trim(),
-          password: password.trim(),
-          isAdminMode
-        })
+    // Perfil Administrador (Acesso ao Painel Gerencial)
+    if (email === 'admin@pneubras.com' && senha === '123456') {
+      onLoginSuccess({
+        nome: 'Administrador SST',
+        email: 'admin@pneubras.com',
+        empresa: 'Grupo PneuBras',
+        isAdmin: true
       });
-
-      const data = await res.json();
-      if (res.ok && data.success) {
-        onLoginSuccess(data.user);
-      } else {
-        setErrorMsg(data.message || "E-mail não autorizado para acesso corporativo ou senha inválida.");
-      }
-    } catch (err) {
-      setErrorMsg("Erro de conexão com o servidor SST PneuBras.");
-    } finally {
-      setLoading(false);
+    } 
+    // Perfil Colaborador (Acesso à Área Operacional/DDS)
+    else if (email === 'colaborador@pneubras.com' && senha === '123456') {
+      onLoginSuccess({
+        nome: 'Operador Padrão',
+        email: 'colaborador@pneubras.com',
+        empresa: 'Grupo PneuBras',
+        isAdmin: false
+      });
+    } 
+    // Tratamento de erro
+    else {
+      setErro('Credenciais inválidas. Para testar, use admin@pneubras.com e senha 123456.');
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F1F5F9] px-4 md:px-0 relative overflow-hidden py-12">
-      {/* Decorative backdrop subtle blurs */}
-      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-slate-200/40 rounded-full blur-3xl -z-10" />
-      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-slate-200/40 rounded-full blur-3xl -z-10" />
-
-      <div className="w-full max-w-md bg-white rounded-xl border border-slate-200 p-8 shadow-sm space-y-6">
-        {/* Logo/Header */}
-        <div className="text-center space-y-2">
-          <div className="inline-flex p-3 bg-slate-900 text-white rounded-xl shadow-sm transition-transform duration-200">
-            <Fingerprint className="w-8 h-8" />
+    <div className="min-h-screen bg-slate-50 flex flex-col justify-center items-center p-4 selection:bg-emerald-200 selection:text-emerald-900">
+      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
+        
+        {/* Cabeçalho do Login */}
+        <div className="bg-slate-900 p-8 text-center relative overflow-hidden">
+          <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-emerald-500 rounded-full opacity-10 blur-xl"></div>
+          <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-20 h-20 bg-emerald-500 rounded-full opacity-10 blur-xl"></div>
+          
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-800 border border-emerald-500/30 mb-4 shadow-inner">
+            <ShieldCheck className="w-8 h-8 text-emerald-400" />
           </div>
-          <div className="space-y-1">
-            <h1 className="text-base font-bold tracking-tight text-slate-900 uppercase">
-              PneuBras • Portal SST
-            </h1>
-            <p className="text-[11px] text-slate-500 font-medium">
-              Segurança e Saúde Ocupacional Integrada nas Portarias
-            </p>
-          </div>
+          <h2 className="text-2xl font-bold text-white tracking-wide">Portal SST</h2>
+          <p className="text-slate-400 text-sm mt-1">Acesso corporativo seguro</p>
         </div>
 
-        {/* Informational helpful credentials list for seamless interactive testing */}
-        <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 text-[11px] leading-relaxed text-slate-705 text-slate-700 space-y-2">
-          <p className="font-bold flex items-center text-slate-800">
-            <Info className="w-4 h-4 mr-1 text-slate-600" />
-            Guia de Credenciais do Testador:
-          </p>
-          <ul className="list-disc pl-4 space-y-1.5 text-slate-600">
-            <li>
-              <strong>Para entrar como Colaborador:</strong> Use e-mails cadastrados. Ex:<br />
-              <code className="bg-white/90 px-1 py-0.5 rounded border border-slate-200 font-mono font-medium">alexandrencrego@gmail.com</code> (Layout 3 - Matriz)<br />
-              <code className="bg-white/90 px-1 py-0.5 rounded border border-slate-200 font-mono font-medium">silva@pneubras.com.br</code> (Layout 2 - Vendas)
-            </li>
-            <li>
-              <strong>Para entrar como Administrador:</strong> Ative a seleção abaixo e use:<br />
-              E-mail: <code className="bg-white/90 px-1 py-0.5 rounded border border-slate-200 font-mono font-medium">admin@pneubras.com.br</code><br />
-              Senha: <code className="bg-white/90 px-1 py-0.5 rounded border border-slate-200 font-mono font-medium">admin123</code>
-            </li>
-          </ul>
-        </div>
+        {/* Formulário */}
+        <div className="p-8">
+          <form onSubmit={handleLogin} className="space-y-5">
+            
+            {erro && (
+              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm flex items-start space-x-3">
+                <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                <span className="font-medium">{erro}</span>
+              </div>
+            )}
 
-        <form onSubmit={handleFormSubmit} className="space-y-4">
-          {/* Email block */}
-          <div className="space-y-1.5">
-            <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">E-mail Corporativo</label>
-            <div className="relative">
-              <Mail className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
-              <input
-                type="email"
-                required
-                id="login-email-input"
-                placeholder="nome@pneubras.com.br"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-slate-50 hover:bg-slate-100/50 border border-slate-200 rounded-lg text-xs text-slate-800 outline-none focus:ring-2 focus:ring-slate-100 focus:border-slate-800 transition-all font-medium"
-              />
-            </div>
-          </div>
-
-          {/* Admin Switch selection */}
-          <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
-            <div className="space-y-0.5">
-              <label htmlFor="login-admin-checkbox" className="block text-xs font-bold text-slate-700 cursor-pointer">
-                Entrar como Administrador
-              </label>
-              <span className="block text-[10px] text-slate-400 font-medium">Acesso restrito para gestores</span>
-            </div>
-            <input
-              type="checkbox"
-              id="login-admin-checkbox"
-              checked={isAdminMode}
-              onChange={handleAdminCheckboxChange}
-              className="w-4 h-4 text-slate-900 focus:ring-slate-800 border-slate-300 rounded cursor-pointer"
-            />
-          </div>
-
-          {/* Password block if AdminMode triggered */}
-          {isAdminMode && (
-            <div className="space-y-1.5 animate-fade-in">
-              <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Senha do Painel</label>
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">E-mail Corporativo</label>
               <div className="relative">
-                <Lock className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Mail className="h-5 w-5 text-slate-400" />
+                </div>
                 <input
-                  type="password"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all"
+                  placeholder="admin@pneubras.com"
                   required
-                  id="login-password-input"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-slate-50 hover:bg-slate-100/50 border border-slate-200 rounded-lg text-xs text-slate-800 outline-none focus:ring-2 focus:ring-slate-100 focus:border-slate-800 transition-all font-medium"
                 />
               </div>
             </div>
-          )}
 
-          {/* Error display notifications */}
-          {errorMsg && (
-            <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-lg flex items-start space-x-2">
-              <ShieldAlert className="w-4 h-4 mt-0.5 text-rose-500 flex-shrink-0" />
-              <span>{errorMsg}</span>
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Senha</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock className="h-5 w-5 text-slate-400" />
+                </div>
+                <input
+                  type="password"
+                  value={senha}
+                  onChange={(e) => setSenha(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all"
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
             </div>
-          )}
 
-          {/* Submit Action */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-2.5 bg-slate-900 text-white font-bold rounded-lg hover:bg-slate-800 cursor-pointer transition disabled:opacity-50 text-xs flex items-center justify-center space-x-2"
-          >
-            <span>{loading ? 'Validando Credenciais...' : 'Acessar Canal SST'}</span>
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </form>
+            <button
+              type="submit"
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-4 rounded-xl transition-colors flex items-center justify-center space-x-2 shadow-lg shadow-emerald-600/20 group mt-2"
+            >
+              <span>Entrar no Sistema</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </form>
 
-        <div className="text-center pt-2">
-          <p className="text-[9px] text-slate-400 uppercase tracking-widest font-mono">
-            SST SECURITY PROTOCOL V1.0 • PNEUBRAS
-          </p>
+          <div className="mt-8 text-center text-xs text-slate-500">
+            <p>Demonstração • Teste na Vercel</p>
+          </div>
         </div>
       </div>
     </div>
