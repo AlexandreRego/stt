@@ -15,7 +15,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
     setErro('');
 
     // Perfil Administrador (Acesso ao Painel Gerencial)
-    if (email === 'admin@pneubras.com' && senha === '123456') {
+    if (email === 'admin@pneubras.com' && senha === '2331') {
       onLoginSuccess({
         nome: 'Administrador SST',
         email: 'admin@pneubras.com',
@@ -24,7 +24,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
       });
     } 
     // Perfil Colaborador (Acesso à Área Operacional/DDS)
-    else if (email === 'colaborador@pneubras.com' && senha === '123456') {
+    else if (email === 'colaborador@pneubras.com' && senha === '2331') {
       onLoginSuccess({
         nome: 'Operador Padrão',
         email: 'colaborador@pneubras.com',
@@ -34,7 +34,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
     } 
     // Tratamento de erro
     else {
-      setErro('Credenciais inválidas. Para testar, use admin@pneubras.com e senha 123456.');
+      setErro('Credenciais inválidas. Para testar, use admin@pneubras.com e senha ****.');
     }
   };
 
