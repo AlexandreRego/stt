@@ -58,7 +58,18 @@ export default function App() {
           imageUrl: 'https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=500&q=80',
           linkOriginal: 'https://pneubras.com/sipat',
           dataCriacao: '28/05/2026'
+        },
+
+        {
+          id: 'n3',
+          titulo: 'Mudança NR01',
+          descricao: 'Mudanças na NR 1 fortalecem o papel do médico do trabalho',
+          imageUrl: 'https://protecao.com.br/noticias/geral/mudancas-na-nr-1-fortalecem-o-papel-do-medico-do-trabalho-nas-organizacoes-avalia-diretora-da-anamt/',
+          linkOriginal: 'https://pneubras.com/sipat',
+          dataCriacao: '28/05/2026'
         }
+
+
       ] as any);
       
       setInspecoes([]);
