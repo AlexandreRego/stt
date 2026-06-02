@@ -64,8 +64,8 @@ export default function App() {
           id: 'n3',
           titulo: 'Mudança NR01',
           descricao: 'Mudanças na NR 1 fortalecem o papel do médico do trabalho',
-          imageUrl: 'https://protecao.com.br/noticias/geral/mudancas-na-nr-1-fortalecem-o-papel-do-medico-do-trabalho-nas-organizacoes-avalia-diretora-da-anamt/',
-          linkOriginal: 'https://pneubras.com/sipat',
+          imageUrl: 'https://cdn.protecao.com.br/wp-content/uploads/2026/02/Capa-site-2026-02-26T132159.526.webp',
+          linkOriginal: 'https://protecao.com.br/noticias/geral/mudancas-na-nr-1-fortalecem-o-papel-do-medico-do-trabalho-nas-organizacoes-avalia-diretora-da-anamt/',
           dataCriacao: '28/05/2026'
         }
 
