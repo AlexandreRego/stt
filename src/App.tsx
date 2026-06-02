@@ -43,22 +43,6 @@ export default function App() {
       
       // 1. INSERINDO NOTÍCIAS DE EXEMPLO
       setNoticias([
-        {
-          id: 'n1',
-          titulo: 'Campanha de Prevenção: Uso obrigatório de EPIs',
-          descricao: 'Lembramos a todos os colaboradores que o uso de óculos de proteção e botinas é estritamente obrigatório em toda a área de recapagem e manutenção de veículos da rede.',
-          imageUrl: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=500&q=80',
-          linkOriginal: 'https://pneubras.com/sst',
-          dataCriacao: '30/05/2026'
-        },
-        {
-          id: 'n2',
-          titulo: 'Semana da SIPAT 2026 confirmada para Junho',
-          descricao: 'Preparem-se! A Semana Interna de Prevenção de Acidentes de Trabalho ocorrerá no próximo mês com palestras virtuais e sorteios de brindes para os participantes.',
-          imageUrl: 'https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=500&q=80',
-          linkOriginal: 'https://pneubras.com/sipat',
-          dataCriacao: '28/05/2026'
-        },
 
         {
           id: 'n3',
