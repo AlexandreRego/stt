@@ -2,7 +2,6 @@ import express from "express";
 import path from "path";
 import fs from "fs";
 import { createServer as createViteServer } from "vite";
-import rateLimit from "express-rate-limit"; // IMPORTAÇÃO DO RATE LIMIT
 import { Colaborador, Noticia, InspecaoForm, ConformidadeForm, PilulaTreinamento, QuizRespostum, AppConfig } from "./src/types";
 
 const PORT = 3000;
@@ -191,7 +190,7 @@ const DEFAULT_DB: DatabaseSchema = {
         respostaCorreta: 0
       },
       dataInicio: "2026-04-10",
-      dataFim: "2026-05-20"
+      dataFim: "2026-05-20" // Expired!
     }
   ],
   respostasQuiz: [
@@ -265,69 +264,44 @@ async function startServer() {
   const app = express();
   app.use(express.json({ limit: "20mb" }));
 
-  // ==========================================
-  // SEGURANÇA: HONEYPOT E LISTA NEGRA
-  // ==========================================
-  const ipsBloqueados = new Set<string>();
-
-  app.use((req, res, next) => {
-    if (ipsBloqueados.has(req.ip)) {
-      res.status(403).json({ success: false, message: "Acesso permanentemente bloqueado por atividade suspeita." });
-      return; 
-    }
-    next(); 
-  });
-
-  app.all("/wp-admin", (req, res) => {
-    ipsBloqueados.add(req.ip);
-    console.warn(`[SEGURANÇA] IP ${req.ip} caiu no Honeypot (/wp-admin) e foi bloqueado!`);
-    res.status(403).json({ success: false, message: "Acesso bloqueado." });
-  });
-
-  app.all("/.env", (req, res) => {
-    ipsBloqueados.add(req.ip);
-    console.warn(`[SEGURANÇA] IP ${req.ip} caiu no Honeypot (/.env) e foi bloqueado!`);
-    res.status(403).json({ success: false, message: "Acesso bloqueado." });
-  });
-
-  // ==========================================
-  // SEGURANÇA: RATE LIMIT
-  // ==========================================
-  const limiterLogin = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutos
-    max: 5, // Limite de 5 tentativas
-    message: { success: false, message: "Muitas tentativas de login. Tente novamente em 15 minutos." },
-    standardHeaders: true,
-    legacyHeaders: false,
-  });
-
   // API Endpoints
 
-  // ==========================================
-  // SEGURANÇA: ENDPOINT DE LOGIN BLINDADO
-  // ==========================================
-  app.post("/api/auth/login", limiterLogin, (req, res) => {
+  // Get full db state (needed for bootstrap/sync)
+  app.get("/api/db", (req, res) => {
+    res.json(getDB());
+  });
+
+  // Access check & login endpoint
+  app.post("/api/auth/login", (req, res) => {
     const { email, password, isAdminMode } = req.body;
     const db = getDB();
 
     if (isAdminMode) {
-      if ((email === "alexandrencrego@gmail.com" || email === "admin@pneubras.com") && password === "2331") {
-        // FILTRO DE SAÍDA: Apenas dados essenciais
-        res.json({
-          success: true,
-          user: {
-            id: "admin",
-            nome: email === "alexandrencrego@gmail.com" ? "Alexandre Rêgo (Admin)" : "Administrador SST",
-            email: email,
-            loja: "Matriz Centro",
-            empresa: "PneuBras - Matriz",
-            status: "Ativo",
-            isAdmin: true
-          }
-        });
-        return;
+      // Admin check: Requires general login for adm plus password
+      // For this app, any administrator login should match configured password
+      // Default admin password will be "admin123"
+      if (email === "alexandrencrego@gmail.com" || email === "admin@pneubras.com.br") {
+        if (password === "admin123" || password === "admin") {
+          // Admin found and valid password
+          res.json({
+            success: true,
+            user: {
+              id: "admin",
+              nome: email === "alexandrencrego@gmail.com" ? "Alexandre Rêgo (Admin)" : "Administrador SST",
+              email: email,
+              loja: "Matriz Centro",
+              empresa: "PneuBras - Matriz",
+              status: "Ativo",
+              isAdmin: true
+            }
+          });
+          return;
+        } else {
+          res.status(401).json({ success: false, message: "Senha de Administrador incorreta." });
+          return;
+        }
       } else {
-        res.status(401).json({ success: false, message: "Credenciais inválidas." });
+        res.status(401).json({ success: false, message: "E-mail não autorizado para acesso Administrativo." });
         return;
       }
     }
@@ -336,7 +310,7 @@ async function startServer() {
     const colaborador = db.colaboradores.find(c => c.email.toLowerCase() === email.toLowerCase());
 
     if (!colaborador) {
-      res.status(401).json({ success: false, message: "Credenciais inválidas." });
+      res.status(404).json({ success: false, message: "E-mail de colaborador não cadastrado no banco 'Base Colaboradores'." });
       return;
     }
 
@@ -348,21 +322,15 @@ async function startServer() {
     if (colaborador.status === "Inativo") {
       res.status(403).json({ 
         success: false, 
-        message: `Acesso temporariamente inativado até ${colaborador.inativoAte || 'prazo indefinido'}.` 
+        message: `Acesso temporariamente inativado até ${colaborador.inativoAte || 'prazo indefinido'} pelo administrador.` 
       });
       return;
     }
 
-    // FILTRO DE SAÍDA: Apenas dados essenciais
     res.json({
       success: true,
       user: {
-        id: colaborador.id,
-        nome: colaborador.nome,
-        email: colaborador.email,
-        loja: colaborador.loja,
-        empresa: colaborador.empresa,
-        status: colaborador.status,
+        ...colaborador,
         isAdmin: false
       }
     });
@@ -504,6 +472,7 @@ async function startServer() {
     const db = getDB();
     const { id } = req.params;
     db.pilulas = db.pilulas.filter(p => p.id !== id);
+    // Also remove responses associated with it
     db.respostasQuiz = db.respostasQuiz.filter(r => r.pilulaId !== id);
     saveDB(db);
     res.json({ success: true });
@@ -526,6 +495,7 @@ async function startServer() {
       status: status || "Concluido"
     };
 
+    // Remove any previous response by same employee for this same pill to avoid duplicates
     db.respostasQuiz = db.respostasQuiz.filter(r => !(r.pilulaId === pilulaId && r.colaboradorEmail.toLowerCase() === colaboradorEmail.toLowerCase()));
 
     db.respostasQuiz.push(newResponse);
@@ -540,6 +510,7 @@ async function startServer() {
     saveDB(db);
     res.json({ success: true, config: db.config });
   });
+
 
   // Host Vite static build or middleware code
   if (process.env.NODE_ENV !== "production") {
