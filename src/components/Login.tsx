@@ -38,6 +38,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
         setErro(dados.message || 'Erro ao realizar login.');
       }
     } catch (error) {
+      console.error("Detalhes do erro de comunicação:", error); // Adicione esta linha
       setErro('Erro de comunicação com o servidor.');
     }
   };
