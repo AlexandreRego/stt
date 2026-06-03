@@ -10,35 +10,31 @@ export default function Login({ onLoginSuccess }: LoginProps) {
   const [senha, setSenha] = useState('');
   const [erro, setErro] = useState('');
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setErro('');
 
-    try {
-      // Fazemos uma requisição (fetch) para o nosso Back-end seguro
-      const resposta = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: email,
-          password: senha,
-          isAdminMode: email.includes('admin') || email.includes('alexandre') // Define se tenta login como admin
-        }),
+    // Perfil Administrador (Acesso ao Painel Gerencial)
+    if (email === 'admin@pneubras.com' && senha === '2331') {
+      onLoginSuccess({
+        nome: 'Administrador SST',
+        email: 'admin@pneubras.com',
+        empresa: 'Grupo PneuBras',
+        isAdmin: true
       });
-
-      const dados = await resposta.json();
-
-      if (dados.success) {
-        // Se o back-end aprovar, repassa os dados seguros para a aplicação
-        onLoginSuccess(dados.user);
-      } else {
-        // Se o back-end barrar, mostra a mensagem de erro fornecida pelo servidor
-        setErro(dados.message || 'Erro ao realizar login.');
-      }
-    } catch (error) {
-      setErro('Erro de comunicação com o servidor.');
+    } 
+    // Perfil Colaborador (Acesso à Área Operacional/DDS)
+    else if (email === 'colaborador@pneubras.com' && senha === '2331') {
+      onLoginSuccess({
+        nome: 'Operador Padrão',
+        email: 'colaborador@pneubras.com',
+        empresa: 'Grupo PneuBras',
+        isAdmin: false
+      });
+    } 
+    // Tratamento de erro
+    else {
+      setErro('Credenciais inválidas. Para testar, use admin@pneubras.com e senha ****.');
     }
   };
 
