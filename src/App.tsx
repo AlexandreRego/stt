@@ -37,52 +37,29 @@ export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const syncDatabase = async () => {
-    // Simulando o tempo de carregamento e populando a base de dados em memória
+    // Simulando o tempo de carregamento
     setTimeout(() => {
-      // 1. POPULANDO COLABORADORES PERMITIDOS DE FORMA SEGURA (AllowedEmails)
-      setColaboradores([
-        {
-          id: '1',
-          nome: 'Alexandre Crego',
-          email: 'alexandrencrego@gmail.com',
-          loja: 'Matriz Geral',
-          empresa: 'PneuBras - Matriz',
-          status: 'Ativo'
-        },
-        {
-          id: '2b',
-          nome: 'Admin PneuBras',
-          email: 'admin@pneubras.com.br',
-          loja: 'Matriz Geral',
-          empresa: 'PneuBras - Matriz',
-          status: 'Ativo'
-        },
-        {
-          id: '3',
-          nome: 'Colaborador Exemplo',
-          email: 'colaborador@pneubras.com.br',
-          loja: 'Filial Serviços',
-          empresa: 'PneuDrive - Serviços',
-          status: 'Ativo'
-        }
-      ]);
+      setColaboradores([]);
       
-      // 2. INSERINDO NOTÍCIAS DE EXEMPLO
+      // 1. INSERINDO NOTÍCIAS DE EXEMPLO
       setNoticias([
+
         {
           id: 'n3',
           titulo: 'Mudança NR01',
           descricao: 'Mudanças na NR 1 fortalecem o papel do médico do trabalho',
           imageUrl: 'https://cdn.protecao.com.br/wp-content/uploads/2026/02/Capa-site-2026-02-26T132159.526.webp',
-          linkOriginal: 'https://protecao.com.br/noticias/geral/mudancas-na-nr-1-fortem-o-papel-do-medico-do-trabalho-nas-organizacoes-avalia-diretora-da-anamt/',
+          linkOriginal: 'https://protecao.com.br/noticias/geral/mudancas-na-nr-1-fortalecem-o-papel-do-medico-do-trabalho-nas-organizacoes-avalia-diretora-da-anamt/',
           dataCriacao: '28/05/2026'
         }
+
+
       ] as any);
       
       setInspecoes([]);
       setConformidades([]);
       
-      // 3. INSERINDO PÍLULAS DE TREINAMENTO (VÍDEOS) DE EXEMPLO
+      // 2. INSERINDO PÍLULAS DE TREINAMENTO (VÍDEOS) DE EXEMPLO
       setPilulas([
         {
           id: 'p1',
@@ -194,6 +171,7 @@ export default function App() {
   };
   
   const handleUpdateConfig = async (newConf: Partial<AppConfig>) => {
+    // Atualiza os campos instantaneamente na tela (modo simulação)
     setConfig(configAnterior => ({
       ...configAnterior,
       ...newConf
@@ -225,15 +203,8 @@ export default function App() {
     );
   }
 
-  // --- INTERCEPÇÃO DA TELA DE AUTENTICAÇÃO ---
-  // Passamos a lista de colaboradores populada para a tela de login validar o acesso seguro.
   if (!user) {
-    return (
-      <Login 
-        colaboradores={colaboradores} 
-        onLoginSuccess={handleLoginSuccess} 
-      />
-    );
+    return <Login onLoginSuccess={handleLoginSuccess} />;
   }
 
   return (
