@@ -1,3 +1,20 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+export interface AllowedEmail {
+  id: string;
+  email: string;
+  name: string;
+  employeeId: string;
+  company: string;
+  companyType: 'servicos' | 'adm_vendas' | 'matriz';
+  companyCode: string;
+  addedAt: string;
+  role: 'admin' | 'user';
+}
+
 export interface Colaborador {
   id: string;
   nome: string;
@@ -82,4 +99,60 @@ export interface AppConfig {
   lookerStudioUrl: string;
   gdriveFormsFolderUrl: string;
   gdrivePhotosFolderUrl: string;
+}
+
+export interface NewsItem {
+  id: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  link: string;
+  addedBy: string;
+  createdAt: string;
+}
+
+export interface VideoCapsule {
+  id: string;
+  title: string;
+  youtubeId: string;
+  availableFrom: string; // YYYY-MM-DD
+  availableTo: string;   // YYYY-MM-DD
+  duration: string;
+  category: string;
+  formsLink: string;     // Google Forms link
+}
+
+export interface UserAccessLog {
+  email: string;
+  firstAccessAt: string;
+  formAccessTimes: { [formKey: string]: string }; // Map key (e.g., 'filial_servicos') to access ISO timestamp
+  videoAnswers: { [videoId: string]: { answered: boolean; answeredAt: string; score?: number } };
+}
+
+export interface SSMAIncidentReport {
+  id: string;
+  email: string;
+  companyType: 'servicos' | 'adm_vendas' | 'matriz';
+  location: string;
+  incidentType: string;
+  description: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  date: string;
+  status: 'Pendente' | 'Analisado' | 'Concluído';
+  auditorComments?: string;
+}
+
+export interface SSMAComplianceForm {
+  id: string;
+  email: string;
+  date: string;
+  score: number; // e.g., 0 to 100
+  itemsCheck: {
+    epiUsage: boolean; // EPIs corretos?
+    machinerySafety: boolean; // Máquinas protegidas?
+    signageVisible: boolean; // Sinalização adequada?
+    fireExtinguishers: boolean; // Extintores em dia?
+    ergonomics: boolean; // Posturas corretas?
+  };
+  notes: string;
 }
